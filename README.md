@@ -32,6 +32,10 @@ You 100% should be monitoring all state-changes produced by your program with BS
 
 ## Getting Started
 
+In your project: 
+`npm i --save-dev @jbrower95/bsan`
+
+
 ```Solidity
 // some erc20 contract
 contract TokenContract is ERC20 {  ... }
@@ -197,7 +201,7 @@ Keypaths should follow the format of "key.path.part", and do not yet support ind
       }
     )
   )
-  
+
   const monitor = S.contract.mapping;
   monitor.expect(address[0]);
 
