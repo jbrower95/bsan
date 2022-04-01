@@ -1,0 +1,35 @@
+{
+  "name": "bsan",
+  "version": "1.0.0",
+  "description": "Block Sanitizer: Assert on-chain state changes in your truffle tests.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jbrower95/bsan.git"
+  },
+  "keywords": [
+    "truffle",
+    "ganache",
+    "solidity",
+    "ethereum",
+    "testing",
+    "unit",
+    "tests",
+    "coverage"
+  ],
+  "author": "Justin Brower <jbrower95@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jbrower95/bsan/issues"
+  },
+  "homepage": "https://github.com/jbrower95/bsan#readme",
+  "devDependencies": {
+    "web3": "^1.7.1"
+  },
+  "dependencies": {
+    "ganache-time-traveler": "^1.0.16"
+  }
+}
