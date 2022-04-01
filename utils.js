@@ -50,9 +50,9 @@ const dynamicEquals = (a, b) => {
 }
 
 async function gasForReceipt(receipt) {
-  const gasUsed = web3.utils.toBN(receipt.gasUsed);
-  let gasPrice = await web3.eth.getGasPrice();
-  gasPrice = web3.utils.toBN(gasPrice);
+  let gasUsed = web3.utils.toBN(receipt.gasUsed);
+  const tx = await web3.eth.getTransaction(receipt.transactionHash);
+  const gasPrice = asBN(tx.gasPrice);
   return gasUsed.mul(gasPrice);
 }
 

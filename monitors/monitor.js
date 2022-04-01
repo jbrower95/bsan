@@ -65,6 +65,10 @@ class StateMonitor {
     }
 
     if (!this.equals(actualValue, expectedValue)) {
+      if (web3.utils.isBN(actualValue) && web3.utils.isBN(expectedValue)) {
+        console.log(`Difference detected: ${actualValue.toString()} - ${expectedValue.toString()} = ${actualValue.sub(expectedValue).toString()} (${web3.utils.fromWei(actualValue.sub(expectedValue) , "ether")} eth)`)
+      }
+
       assert.fail(`${this.toString()}: Error validating state (expected=${expectedValue}, actual=${actualValue}) ${this.errorMsg || ""}`);
     }
 
