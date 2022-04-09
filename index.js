@@ -1,4 +1,3 @@
-const timeMachine = require('ganache-time-traveler');
 const {StateSource, DappState, ERC20Monitor, ETHWalletMonitor, ContractMonitor} = require('./monitors');
 
 /**
@@ -55,37 +54,33 @@ const {StateSource, DappState, ERC20Monitor, ETHWalletMonitor, ContractMonitor} 
  *      - async expectLessThan(value, message)
  *
  */
-const describeDapp = (name, state, instructions) => {
-  const prevInstructions = instructions;
-  const testImpl = () => {
+global.contract.stateful = (name, stateFn, instructions) => {
+  const testImpl = (accounts) => {
     let snapshotId = null;
 
+    instructions(accounts);
+
+    before(async() => {
+      global.S = stateFn(accounts);
+    });
+
     beforeEach(async () => {
-      await state.reset();
-      let snapshot = await timeMachine.takeSnapshot();
-      snapshotId = snapshot['result'];
+      await S.reset();
     });
 
     afterEach(async () => {
-      if (state.exceptions) {
-        // potentially a failure already that caused test execution to end.
-        // Failing here is unnecessary since another test part has failed.
-        await timeMachine.revertToSnapshot(snapshotId);
-      } else {
-        await state.checkDirty();
-        await timeMachine.revertToSnapshot(snapshotId);
-        state.assertNoExceptions();
-        await state.reset();
+      if (!S.exceptions) {
+        await S.checkDirty();
+        S.assertNoExceptions();
+        await S.reset();
       }
     });
 
-    prevInstructions(state);
   };
 
-  describe(name, testImpl);
+  contract(`${name} (stateful)`, testImpl);
 }
 
-module.exports.describeDapp = describeDapp;
 module.exports.DappState = DappState;
 module.exports.ERC20Monitor = ERC20Monitor;
 module.exports.ETHWalletMonitor = ETHWalletMonitor;

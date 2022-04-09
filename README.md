@@ -32,7 +32,7 @@ You 100% should be monitoring all state-changes produced by your program with BS
 
 ## Getting Started
 
-In your project: 
+In your project:
 `npm i --save-dev @jbrower95/bsan`
 
 
@@ -63,54 +63,55 @@ contract MyContract {
 In your truffle test:
 
 ```JavaScript
-const {describeDapp, ETHWalletMonitor, ContractMonitor} = require('bsan');
+const {ETHWalletMonitor, ContractMonitor} = require('bsan');
 const {eth2wei} = require('bsan/utils.js');
 
 // Your truffle `contract` test.
-contract("MySmartContract", (accounts) => {
-  before(async () => {
 
-    // load any contracts you need.
-    myContract = await MyContract.deployed({from: accounts[4]});
+let myContract = null; // load this later.
 
-    describeDapp(
-      "MyContract",
-      new DappState(
-        wallets={
-          account0: new ETHWalletMonitor(accounts[0]),
-        },
-        erc20={},
-        contract={
-          myContractOwner: new ContractMonitor(myContract, myContract.owner),
-        },
-      ),
-      (S) => {
-        // write your tests
+contract.stateful(
+  "MySmartContract",
+  // after this state is created, it's available via the global "S"
+  (accounts) => new DappState(
+    wallets={
+      account0: new ETHWalletMonitor(accounts[0]),
+    },
+    erc20={},
+    contract={
+      myContractOwner: new ContractMonitor(myContract, myContract.owner),
+    },
+  ),
+  (accounts) => {
+    before(async () => {
+      // load any contracts you need.
+      myContract = await MyContract.deployed({from: accounts[4]});
+    });
 
-        it("Bidding 0 causes the owner to not be set", async function () {
-          await S.wallets.account0.call(S, myContract.setOwner, {value: eth2wei(0).toString()});
-          await S.wallets.account0.expectOnlyConsumedGas("If bidding nothing, you should not receive ownership.");
-        });
+    it("Bidding 0 causes the owner to not be set", async function () {
+      await S.wallets.account0.call(S, myContract.setOwner, {value: eth2wei(0).toString()});
+      await S.wallets.account0.expectOnlyConsumedGas("If bidding nothing, you should not receive ownership.");
+    });
 
-        it("Bidding 1 causes a new owner to be set", async function () {
-          await S.wallets.account1.call(S, myContract.setOwner, {value: eth2wei(1).toString()});
+    it("Bidding 1 causes a new owner to be set", async function () {
+      await S.wallets.account1.call(S, myContract.setOwner, {value: eth2wei(1).toString()});
 
-          // assert wallet balance falls.
-          await S.wallets.account1.expectFallsBy(eth2wei(1), "When bidding 1 eth, 1 eth is paid.");
+      // assert wallet balance falls.
+      await S.wallets.account1.expectFallsBy(eth2wei(1), "When bidding 1 eth, 1 eth is paid.");
 
-          // assert new owner is set.
-          await S.contract.myContractOwner.expect(account[1]);
+      // assert new owner is set.
+      await S.contract.myContractOwner.expect(account[1]);
 
-          // bid even more from another account.
-          await S.wallets.account0.call(S, myContract.setOwner, {value: eth2wei(2).toString()});
-          await S.wallets.account1.expectRisesBy(eth2wei(1), "Account 1 should receive a refund.");
-          await S.wallets.account0.expectFallsBy(eth2wei(2), "Account 0 pays 2 ETH to be the owner.");
-          // assert new owner is set.
-          await S.contract.myContractOwner.expect(account[0]);
-        });
-     });
-  });
+      // bid even more from another account.
+      await S.wallets.account0.call(S, myContract.setOwner, {value: eth2wei(2).toString()});
+      await S.wallets.account1.expectRisesBy(eth2wei(1), "Account 1 should receive a refund.");
+      await S.wallets.account0.expectFallsBy(eth2wei(2), "Account 0 pays 2 ETH to be the owner.");
+      // assert new owner is set.
+      await S.contract.myContractOwner.expect(account[0]);
+    });
 });
+
+
 ```
 
 You should start to see how these tests work. In the beginning, you list the things
@@ -191,16 +192,13 @@ Keypaths should follow the format of "key.path.part", and do not yet support ind
 
   //
 
-  describeDapp(
-    "MyContract",
     new DappState(
       contract={
         // monitor value changes to the `myContract.owneccr` field.
         mapping: new ContractMonitor(someContractInstance, someContractInstance.myMapping, [accounts[0]]),
         someKeypathField: new ContractMonitor(someContractInstance, someContractInstance.myStructMapping, [accounts[0]], keypath="my.field"),
       }
-    )
-  )
+    );
 
   const monitor = S.contract.mapping;
   monitor.expect(address[0]);
