@@ -1,6 +1,6 @@
 {
   "name": "@jbrower95/bsan",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Block Sanitizer: Assert on-chain state changes in your truffle tests.",
   "main": "index.js",
   "scripts": {
