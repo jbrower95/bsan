@@ -69,11 +69,9 @@ global.contract.stateful = (name, stateFn, instructions) => {
     });
 
     afterEach(async () => {
-      if (!S.exceptions) {
-        await S.checkDirty();
-        S.assertNoExceptions();
-        await S.reset();
-      }
+      await S.checkDirty();
+      S.assertNoExceptions();
+      await S.reset();
     });
 
   };
