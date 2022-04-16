@@ -1,5 +1,10 @@
 # bsan: Better testing for truffle
 
+## Known Issues
+
+- BSAN is not compatible with solidity-coverage, which distorts gas consumption. 
+- BSAN is not currently compatible with truffle's `debug(..)` macro.
+
 ## Philosophy
 
 Smart contracts are above all a mechanism for updating state. While line and branch
